@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  nodejs:
+    container_name: nodejs
+    restart: always
+    build:
+      context: ./nodejs
+    depends_on:
+      - mysql
+    networks:
+      - default-network
+
+  mysql:
+    image: mysql:5.7
+    command: "--innodb-use-native-aio=0"
+    container_name: mysql
+    restart: always
+    tty: true
+    ports:
+      - "3307:3306"
+    expose:
+      - 3307
+    networks:
+      - default-network
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: fullcycle
+      MYSQL_USER: fullcycle
+      MYSQL_PASSWORD: fullcycle3
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+      - nodejs
+    networks:
+      - default-network
+
+networks:
+  default-network:
+    driver: bridge
