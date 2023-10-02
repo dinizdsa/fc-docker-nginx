@@ -10,6 +10,7 @@ services:
       - mysql
     networks:
       - default-network
+    entrypoint: wait-for mysql:3306 -t 40 -- npm start
     volumes:
       - ./nodejs:/app
       - nodeModules:/app/node_modules
